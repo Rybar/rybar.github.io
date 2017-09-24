@@ -9,7 +9,7 @@
 title: Ryan B. Malm
 email: ryan.malm@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
-  Ryan is a jack of many trades who enjoys making html5 games and other quirky graphic experiments.
+  Ryan's code playground
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://code.ryanmalm.com" # the base hostname & protocol for your site
 twitter_username: ryanmalm
