@@ -44,7 +44,7 @@ Use the graphics and sound boilerplate: [JS13K 2017 Kit](https://github.com/Ryba
   * [Protogame](https://codepen.io/Rybar/full/dRexwa/)  
 
 ### Sound design
-  The sound effects and music were designed in [Sonant-X](https://github.com/nicolas-van/sonant-x-live), and most of them are actually tiny songs. I took inspiration how the sounds in the original Super Mario Brothers were designed; they're not one sound, but a series of square or saw wave tones played in rapid succesion. There are numerous youtube videos illustrating this idea, even transcriptions of sound effects into sheet music.
+  The sound effects and music were designed in [Sonant-X](https://github.com/nicolas-van/sonant-x-live), and most of them are actually tiny songs. I took inspiration from how the sounds in the original Super Mario Brothers were designed; they're not one sound, but a series of square or saw wave tones played in rapid succession. There are numerous youtube videos illustrating this idea, even transcriptions of sound effects into sheet music.
 
   * [Jack Conte's Mario Theme Cover](https://www.youtube.com/watch?v=JWiqUgJ0qsM)
   * [How To Make Mario Brothers Sounds](https://youtu.be/egd7vhTuC8Q)
