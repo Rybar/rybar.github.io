@@ -5,7 +5,7 @@ permalink: JS13k_2017_postmortem
 ---
 ![image alt text]({{ site.url }}/assets/greeble-shot1.jpg)
 
-Greeble is a game I made for the JS13K 2017 Game Jam, an html5/JS game-making competition with a file size limit of 13 kilobytes. This year the theme was 'Lost'. This is my post-mortem for Greeble.
+Greeble is a game I made for the [JS13K 2017 Game Jam](http://js13kgames.com), an html5/JS game-making competition with a file size limit of 13 kilobytes. This year the theme was 'Lost'. This is my post-mortem for Greeble.
 
 Play the game: [Greeble](http://js13kgames.com/entries/greeble)
 
