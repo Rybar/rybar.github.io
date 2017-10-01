@@ -1,0 +1,74 @@
+---
+layout: post
+title: Making Greeble
+permalink: JS13k_2017_postmortem
+---
+![image alt text]({{ site.url }}/assets/greeble-shot1.jpg)
+
+Greeble is a game I made for the JS13K 2017 Game Jam, an html5/JS game-making competition with a file size limit of 13 kilobytes. This year the theme was 'Lost'. This is my post-mortem for Greeble.
+
+Play the game: [Greeble](http://js13kgames.com/entries/greeble)
+
+Look at my messy code: [Greeble Github Repo](https://github.com/rybar/js13k2017)
+
+Use the graphics and sound boilerplate: [JS13K 2017 Kit](https://github.com/Rybar/js13k2017kit)
+
+## What Went Right:
+
+### Procedural pixel-art
+  I follow the pico-8 community and all the cool things they make on twitter. [Pico-8](https://www.lexaloffle.com/pico-8.php) is a fantasy programmable game console for making, sharing, and playing tiny games and other programs. The combination of fast, dynamic fluid motion and crisp pixel drawing is something that's simultaneously nostalgic and new, and not easy to replicate with the canvas API. I wanted pico-8's simple yet nimble and expressive drawing API in JavaScript.
+
+  A tiny selection of some of the cool stuff [Trasevol Dog](https://twitter.com/TRASEVOL_DOG) makes in pico-8:  
+  * [spinning crystals](https://twitter.com/TRASEVOL_DOG/status/850510798074122241)
+  * [rollercoaster minecart](https://twitter.com/TRASEVOL_DOG/status/893278061314977802)
+  * [procedural dithering demos](https://twitter.com/TRASEVOL_DOG/status/829145759480107010)
+
+  You can turn off anti-aliasing for image rendering on the canvas and turn off interpolation for scaled canvases, but you can't turn it off for the canvas drawing API. Even drawing a single pixel on the canvas requires translating the context half a pixel to prevent fractional drawing. I wanted to capture the visual appeal of pico-8's graphics, and retro pixel-art in general in a canvas-based game. Doing this with hand-drawn pixel-art assets is trivial, but I wanted dynamic lines and fills in code without anti-aliasing. So earlier this year I started playing around with setting data on an 32bit array instead of drawing to the canvas, an idea that came from an [older article on fast pixel manipulation. ](https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/)  
+
+  * [Initial animated line drawing experiment](https://codepen.io/Rybar/full/PWZOGP/)
+  * [BlitDraw: circles in 3D space](https://codepen.io/Rybar/full/qRNeOg/)
+  * [blitDraw: noisy crawlers](https://codepen.io/Rybar/full/OWwGjE/)
+
+  After discovering this was indeed performant enough for animation, I decided I also wanted indexed-color drawing, and started writing a little framebuffer and graphics API. It's all Bresenham algorithms, and I couldn't have made this work without help from this article on [Bresenham line drawing](http://members.chello.at/~easyfilter/bresenham.html) detailing the algorithms for multiple drawing primitives.
+
+  * [Color cycling demo](https://codepen.io/Rybar/full/oZNwpJ/)
+  * [framebuffer with filled triangles](https://codepen.io/Rybar/pen/wdbggz)
+
+  I chose [Richard Fhager's DB32 palette](http://pixeljoint.com/forum/forum_posts.asp?TID=16247) for its elegance and popularity among pixel artists. It helped make my experiments look less programmer-art-y and this restraint proved useful once it was time to start actually making a game.
+
+  Now that most of a drawing API was in place, I set out to recreate a few "tweetcarts"; small tweet-sized bits of code that create a visual effect in pico-8.  
+  * [Tweetcarts in javascript](https://codepen.io/Rybar/full/YQEXbd/)
+
+  Since I was doing all my drawing to a 8-bit array and only using 32 colors, I could quite easily draw to un-rendered parts of the array and composite the parts later, or 'draw' game data to other parts of the array, like collision data or collectible items. I took advantage of all of these handy side-effects of the graphics engine in Greeble. Here's one more codepen showing the state of the engine just prior to JS13k start, with a collision demo:
+
+  * [Protogame](https://codepen.io/Rybar/full/dRexwa/)  
+
+### Sound design
+  The sound effects and music were designed in [Sonant-X](https://github.com/nicolas-van/sonant-x-live), and most of them are actually tiny songs. I took inspiration how the sounds in the original Super Mario Brothers were designed; they're not one sound, but a series of square or saw wave tones played in rapid succesion. There are numerous youtube videos illustrating this idea, even transcriptions of sound effects into sheet music.
+
+  * [Jack Conte's Mario Theme Cover](https://www.youtube.com/watch?v=JWiqUgJ0qsM)
+  * [How To Make Mario Brothers Sounds](https://youtu.be/egd7vhTuC8Q)
+  * [Mario Sounds Transcription](https://www.youtube.com/watch?v=mnSjJUC7z38)
+
+  Here's some of the sounds from Greeble, in the Sonant-X Live Editor:
+
+  * [Disintegrator ray gun sound sound](https://nicolas-van.github.io/sonant-x-live/#N4IgTg9g7gMgpgOxALgKyoIwGYA0JEAmACgIYAuZcYSyuIAzhAgOYAi5JKA2qBPQMYYA%2BhH5kUAdjx9BQgnHHIADNIHD5ZAK4I4KFSBnCAHogBue1bNMQANigwBODJeFQSpuADMIYALb3LACYRMUkguQULAwFgjW1dZXCTBHNE6P5g6ztkDEDUcLcPbz8AkAQIAEt6OCFPEnkwKLMhcjISfgBrFEClfWb6TXo2ipoe3rxmsDgbOBJq7oAWDAAOCZShXznKRuQJOk8jWoqbbe68A9qpgEcUADZbnvPDqcYEEgR%2BBOx9C%2FkbEgAnkIyBVfAlbk8Iv8gSRfIoFqsQBcAA7vS5wG7IBaQ1EIFpwqI2bwiNTozH6IkQWqHTzXQnE2kY%2BlU2GKCnEwpeHz%2BNLI7jOQIAXTw%2FG4oBoXGwUhUGAWKhlC2xCulOClOAV8tVivVWpVao1OtlSt1hqwerlhu1yvVgoAvjhxfyzZbNUbLRCZc6DQrjbKPaqvVrXVatf79UHLb6Fh67XaHelhKJFFIExE2S40%2FEooYhMlUvoc1luugM5zijznOlgkmwlW09mYpmdCgHEkzA2MkIizlUNi62XuaVylUanUGk11q12l0cg4U%2F1BsMaBgJBIIfh1lMZnMvnK6M1NkMqCgFvkkTTjqc0hdGZiMBglHlIS8mO9PsWz79poDgaCEoFIT%2BH9WTuT9DlxMkUH2cC0RArEU0pElZFvZlqUgtJEJQjDiTg9kqQHEpeX5HAhRFMUyn5J9XUCXBqPyTUGJ1GUaMNKjWNo1j6KY7jGKUONHWQSUsEY3JVldYSeMk5ixIDETAhkz1eKkpjY3tXhSRrXYMw0Dt1AULM0hzPNdK7Wx7AcADUwInlLJkatQi0usdMMxs4mbFzO2MjzMjM2dbMbayh0qapanqY80maKdOhQZZEQXIYSBGO4sCwOLN2mWZ5ixbUN1MDYtnCxxLJvS9wuKmk6XgwJyqEF83g%2Bf8S3PKEfxBMET0A78YQJZAn2aiCsJ%2BGC8VwvBEJzQaxoZCqmRyKaqSwhCcJ6ud5qEQKiMEgVhRAUVBIEyVUAAjBMFVI7lJlU7XXO4NWyUkSFjus6AOu%2F1Lru%2FiKK21BVhO7FZSe26zucE6XrO%2F6ruerVAYuy1W1B4Hobhk15VUnbXmYeBlywW0gAAA%3D%3D)
+  * [Fuel rod pick-up sound](https://nicolas-van.github.io/sonant-x-live/#N4IgTg9g7gMgpgOxALgKyoIwGYA0JEAmACgIYAuZcYSyATBngM4QIDmAIuSSgNqgSMAxhgD6EQWRQB2PAOEiCcScgAMsoaMVkArgjgo1IOaIAeiAG4H188xAA2KDAE4GRjSKglzcAGYQwALaO1rRiEtIhCkpWboKhWrr6qpFmCJbJsaG2DsgYtKiRnt5%2BgcEgCBAAloxwIj4kimAxFiLkZCSCANYotCqGLYzajO2VNL19eC1gcHZwJDU9ACwYAByTaSIB85RNyFK4ID4mdZV2Oz14R3XTAI4oAGz3vZfH08wIJAiCSdiGV4p2EgATxEZEqASS9xeUUBIJIAWUizWh2OAAdPtc4HdkItoeiEK0ETE7H4xO4fLdiaSrhSsVSIJjsYYSQz4cpmaSir5%2FEEMqjeAxaDhBcKcEKRRKxaLxVLJbQALp4QS8UA0HjYGRqDCLNRaxa4vWa4VYI3a3XC%2FU4Q1W42mnU27UGi2mk0O%2B16p3azXygC%2BOFVAtdevNjrdUK1QYtIctevDtrd0c9izjGoTbqT4d9vv9sVE4mUMlzUXZ1k0SkSMWMIlS6UMVeyPXQpY8Xm5pVykXzEUyxcrQni5b0KCcKQsfbiIgbuVQuJ7XJKvNcFWqtXqjWaGzaHW6uSchYGQxGNAwUikUPwG2ms3mPx1BxaW2GVBQiwKKJOZ2fGRplNyGBU%2BTQm8LCfN8jZvv8MzAqC4JJEK74AtBbIPBBaIYrS2IHFc%2BKEoihYsmS8gYfSdTHMRGQEeRHKskSFGcq2C4xPyyDqrKbEyhx0pcXK0qKiAyosQGLF5AUIa0LgYmiTa5oycK4kOoBYkSQpUmyWpVrZkJ6pYLJeRrCGOnSUZum0PpxomWZEbqdZGk%2BppRZdnszZaOOZY6EOGRVjWrmTvYjhOPBVbzjyFw9o5hZyAOJY9gkHl1v21Zjp5CVTs4gUJcF7ZLlUNR1A0X79JuFDbigKzIgewwkKMDxYFg5WXjMcwLDiloXuYmzbF%2BaXQj4pznHQPW%2FosUi0PBVzAR8XxwU2CFQSCYIQi%2B0KIXCtGAe%2BOFUXiGLIXRDJVltICUWRv6uJRv74aSu17ngBGZbyhjMaxQohmKfECXw5QCqg4qYMKP3GYDNnA26I5agDIaoHG4Ng7ZOZqhgqBrIjuLarDIMY0DWMY1mdlMCwrDwDQKyoD6QAAAA%3D%3D)
+  * [Early version of the game music](https://nicolas-van.github.io/sonant-x-live/#N4IgTg9g7gMgpgOxALgKyoIwGYA0JEAmACgIYAuZcYSyuIAzhAgOYAi5JKA2qBPQMYYA%2BhH5kUAdjx9BQgnHHIADNIHD5ZAK4I4KFSBnCAHogBue1bNMQANigwBODJeFQSpuADMIYALb3LACYRMUkguQULAwFgjW1dZXCTBHNE6P5g6ztkDEDUcLcPbz8AkAQIAEt6OCFPEnkwKLMhcjISfgBrFEClfWb6TXo2ipoe3rxmsDgbOBJq7oAWDAAOCZShXznKRuQJOk8jWoqbbe68A9qpgEcUADZbnvPDqcYEEgR%2BBOx9C%2FkbEgAnkIyBVfAlbk8Iv8gSRfIoFqsQBcAA7vS5wG7IBaQ1EIFpwqI2bwiNTozH6IkQWqHTzXQnE2kY%2BlU2GKCnEwpeHz%2BNLI7jOQIAXTw%2FG4oBoXGwUhUGAWKhlC2xCulOClOAV8tVivVWpVao1OtlSt1hqwerlhu1yvVgoAvjhxfyzZbNUbLRCZc6DQrjbKPaqvVrXVatf79UHLb6Fh67XaHelhKJFFIExE2S40%2FEooYhMlUvoc1luugM5zijznOlgkmwlW09mYpmdCgHEkzA2MkIizlUNi62XuaVylUanUGk11q12l0cg4U%2F1BsMaBgJBIIfh1lMZnMvnK6M1NkMqCgFvkkTTjqc0hdGZiMBglHlIS8mO9PsWz79poDgaCEoFIT%2BH9WTuT9DlxMkUH2cC0RArEU0pElZFvZlqUgtJEJQjDiTg9kqQHEpeX5HAhRFMUyn5J9XUCXBqPyTUGJ1GUaMNKjWNo1j6KY7jGKUONHWQSUsEY3JVldYSeMk5ixIDETAhkz1eKkpjY3tXhSRrXYMw0Dt1AULM0hzPNdK7Wx7AcADUwInlLJkatQi0usdMMxs4mbFzO2MjzMjM2dbMbayh0qapanqY80maKdOhQZZEQXIYSBGO4sCwOLN2mWZ5ixbUN1MDYtnCxxLJvS9wuKmk6XgwJyqEF83g%2Bf8S3PKEfxBMET0A78YQJZAn2aiCsJ%2BGC8VwvBEJzQaxoZCqmRyKaqSwhCcJ6ud5qEQKiMEgVhRAUVBIEyVUAAjBMFVI7lJlU7XXO4NWyUkSFjus6AOu%2F1Lru%2FiKK21BVhO7FZSe26zucE6XrO%2F6ruerVAYuy1W1B4Hobhk15VUnbXmYeBlywW0gAAA%3D%3D)
+
+### Atmosphere and Feel
+
+  Once I had solved my rotation-drawing bug in week 3, the feel of helplessness and despair at the beginning of the game really started to come together. I received great feedback from screenshot posts showing the poor head tumbling around. The rotated-sprite drawing also allowed me to easily create the opening scene where you fall to a pile of trash and robot heads. From there everything came together quickly; the title screen showing the robots drive by, the explosion and fall when you begin, the music was changed-up to be slower and help evoke the feel of being lost. I'm very happy with how the game's music and opening sequence turned out, and I've never previously tackled such an ambitious project.
+
+## What Went Wrong:
+
+
+### Game Scope
+ The game's scope got away from me a bit. I had this elaborate idea for the theme immediately and just started coding the room system, bitmap collision, and the part-collection mechanic without giving much thought to how much time I would need to actually create content for the game. Once I realized that what I was making was basically a metroidvania and I only had 4 days left, I had to force myself to scale it back, make sure that you could experience an abridged version of this genre inside of the 3-5 minutes most of the judges are going to spend playing. [This article on crafting metroidvanias](https://subtractivedesign.blogspot.com/2013/01/guide-to-making-metroidvania-style.html) proved most helpful in helping me wrap my head around what works, what makes this genre fun, and how to boil down the experience to something playable in 5 minutes.
+
+### Collision Bugs
+  I had initially wanted to be able to roll around in Greeble. The player character even kept his uni-wheel design through the finish of the jam, although you can just fly around once you have it. That was admittedly just a kludge since I ran out of time to deal with slopes not working. I spent a week on and off dealing with this, trying to solve all of the edge cases, almost to disastrous effect. One of these bugs reared it's ugly head during Jupiter Hadley's play-through. Instead of working out what was causing a few edge cases, I decided to simply carve out out part of the room if collision resolution fails. It worked most of the time, and the game features terrain destruction anyways so I let it go. I was incredibly fortunate that Jupiter decided to re-load and have another go at it.
+
+### Time Management   
+
+  I didn't get to a state where everything was working well enough to design actual world content for the game until about 3 days before the deadline. Almost no time for playtesting or room/level design tweaks, or game content polish.  Next year I'll try to have the game playable much earlier in the jam, and ditch ideas that aren't working sooner (slopes) and pivot, rather than grinding away at a difficult problem indefinitely.
