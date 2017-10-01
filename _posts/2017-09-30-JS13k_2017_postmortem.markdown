@@ -36,7 +36,7 @@ Use the graphics and sound boilerplate: [JS13K 2017 Kit](https://github.com/Ryba
 
   I chose [Richard Fhager's DB32 palette](http://pixeljoint.com/forum/forum_posts.asp?TID=16247) for its elegance and popularity among pixel artists. It helped make my experiments look less programmer-art-y and this restraint proved useful once it was time to start actually making a game.
 
-  Now that most of a drawing API was in place, I set out to recreate a few "tweetcarts"; small tweet-sized bits of code that create a visual effect in pico-8.  
+  Now that most of a drawing API was in place, I set out to recreate a few "[tweetcarts](https://twitter.com/search?q=%23tweetcart&src=typd)"; small tweet-sized bits of code that create a visual effect in pico-8.  
   * [Tweetcarts in javascript](https://codepen.io/Rybar/full/YQEXbd/)
 
   Since I was doing all my drawing to a 8-bit array and only using 32 colors, I could quite easily draw to un-rendered parts of the array and composite the parts later, or 'draw' game data to other parts of the array, like collision data or collectible items. I took advantage of all of these handy side-effects of the graphics engine in Greeble. Here's one more codepen showing the state of the engine just prior to JS13k start, with a collision demo:
